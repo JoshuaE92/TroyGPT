@@ -1,22 +1,22 @@
 from fastapi import FastAPI
+from fastapi import Depends
+from app.database import get_db
+from app.game_logic import get_messages, create_gamesession, save_message
+from pydantic import BaseModel
+from app.llm_client import get_ai_response
 app=FastAPI()
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from app.models import Base
-DATABASE_URL="sqlite://./game.db" #the actual connection to the created game.db
-engine=create_engine(DATABASE_URL,connect_args={"check_same_thread:FALSE"})  #connection to database, connect_args=seperate threads for tings
-SessionLocal=sessionmaker(autocommit=False,autoflush=False,bind=engine)#sesion maker, session=transactions/read and writes, autoocomit=false=dont auto comit,
-#autoflush=false stops from pushign qued objects to db b4 new query, bind=bind to engine/db created form b4
-Base.metadata.create_all(bind=engine)
 
-def get_db():#inject into route used later to create a new database session instance
-    db=SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+class ChatRequest(BaseModel):
+    session_id:int
+    message:str
+
 
 @app.get("/")
 def root():
     return{"message": "Trojan Horse Game API is running"}
+
+@app.post("/session")
+def route(db=Depends(get_db)):
+    game_session=create_gamesession(db)
+    return {"session_id":game_session.id}
 
