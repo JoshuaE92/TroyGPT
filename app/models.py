@@ -13,11 +13,11 @@ class Base(DeclarativeBase):
 class GameSession(Base):
     __tablename__="game_session"
     id: Mapped[int] = mapped_column(primary_key=True)
-    guard_level: Mapped[int] = mapped_column(default=1)
-    attempts_used:Mapped[int]=mapped_column(default=0)
+    guard_level: Mapped[int] = mapped_column(default=1) 
     game_state: Mapped[str]=mapped_column(default="Playing")
     day:Mapped[int]=mapped_column(default=1)
     messages: Mapped[List["ChatMessage"]]=relationship()
+    conviction:Mapped[int]=mapped_column(default=50)
 
 
 
