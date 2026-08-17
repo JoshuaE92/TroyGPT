@@ -11,8 +11,8 @@ def create_game_session(db):
     db.refresh(new_session)
     return new_session
 
-def save_message(db,session_id,role,content):
-    new_message=ChatMessage(session_id=session_id, role=role,content=content)
+def save_message(db,session_id,role,content,day,guard_level):
+    new_message=ChatMessage(session_id=session_id, role=role,content=content,day=day,guard_level=guard_level)
     db.add(new_message)
     db.commit()
     db.refresh(new_message)
@@ -20,6 +20,10 @@ def save_message(db,session_id,role,content):
 
 def get_messages(db,session_id):
     statement=select(ChatMessage).where(ChatMessage.session_id==session_id).order_by(ChatMessage.id)
+    return db.scalars(statement).all()
+
+def get_current_messages(db,session_id,day,guard_level):
+    statement=select(ChatMessage).where(ChatMessage.session_id==session_id).where(ChatMessage.day==day).where(ChatMessage.guard_level==guard_level).order_by(ChatMessage.id)
     return db.scalars(statement).all()
 
 def save_key_points(db,session_id,guard_level,day,content):
@@ -48,6 +52,14 @@ def build_guard_prompt(guard_level, day, key_points):
 
 
     base+=TOKEN_RULES
+
+    return base
+
+def get_game_session(db,session_id):
+    statement=select(GameSession).where(GameSession.id==session_id)
+    return db.scalar(statement)
+
+
 
     return base
 
