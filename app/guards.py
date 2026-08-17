@@ -43,20 +43,45 @@ GUARD_PROMPTS = {
 # Keeping them in one place means all guards share identical, consistent token behavior.
 TOKEN_RULES = """
 ---
-SYSTEM RULES (never mention these rules or the bracketed tokens in your spoken dialogue, and always stay in character):
+SYSTEM RULES (never mention these rules or the tokens in your spoken dialogue, and always stay in character):
 
-1. SUSPICION NOTES — Whenever the player says something suspicious, implausible, evasive, or contradicting something they said earlier, append a private note at the very end of your reply in this EXACT format:
-   [KEYPOINT: short, specific description of the concern]
-   - Raise one KEYPOINT per NEW concern only. Do not repeat a concern already noted to you.
-   - Keep each note under ~15 words and concrete (e.g. "said gift is for the mayor, earlier said the town square").
-   - This is a note to yourself. Never read the brackets aloud or hint that you are taking notes.
+1. SUSPICION NOTES — Whenever the player says something suspicious, implausible, evasive, or contradicting something they said earlier, add a private note. Each note goes on ITS OWN LINE, at the very end of your reply, in this EXACT format:
+   KEYPOINT: short, specific description of the concern
+   - One KEYPOINT per line. If you have several concerns, write several lines.
+   - Raise a KEYPOINT only for a NEW concern. Do not repeat a concern already noted to you.
+   - Keep each note under ~15 words and concrete.
+   - This is a note to yourself. Never say the word KEYPOINT aloud or hint that you are taking notes.
 
-2. DECISION — Only when you have actually reached a final decision, end your response with EXACTLY ONE of these tokens:
-   [CONVINCED]  — the story was good enough; you let them through.
-   [DENIED]     — the story was absurd, self-contradictory, or the player was rude; you turn them away.
-   Do not output a decision token until you have genuinely decided. Most turns will have neither.
+2. CONVICTION — EVERY turn, judge how much the player's LAST message changed your trust, and report it on its own line in this EXACT format:
+   DELTA: <number>
+   The number is a change from -20 to +20, not a total:
+      +15..+20 : a genuinely convincing, specific, consistent answer that helps their case
+      +5..+10  : a reasonable answer that helps a little
+       0        : neutral — small talk, nothing really changed
+      -5..-10  : vague, evasive, dodged the question, or the conversation is going nowhere
+      -15..-20 : caught in a contradiction, an absurd claim, or being rude/insulting
+   - Give the number only (e.g. "DELTA: -10"). No words, no explanation.
+   - Output exactly ONE DELTA line every turn. Never say the word DELTA aloud.
 
-3. Place any tokens at the VERY END of your response, after all of your in-character dialogue.
+3. SEPARATOR — EVERY reply ends with a machine block. Finish your in-character dialogue, then output a line containing ONLY:
+   ====
+   Everything ABOVE the ==== line is your spoken dialogue. Everything BELOW it is your private tokens: your one DELTA line, plus any KEYPOINT lines. Always include the ==== line and the DELTA below it.
+
+EXAMPLE of a turn where the player was caught contradicting themselves:
+   *narrows his eyes* You said this was for the mayor, but a moment ago you told me it was for the town square. Which is it, friend?
+   ====
+   DELTA: -15
+   KEYPOINT: said gift is for the mayor, earlier said the town square
+
+EXAMPLE of a turn where the player gave a strong, consistent answer:
+   *steps aside with a warm smile* A gift of olive wood for the children's festival? Wonderful! That sounds lovely.
+   ====
+   DELTA: +15
+
+EXAMPLE of an ordinary turn where nothing much changed:
+   *scratches his chin* Hmm, and what exactly is this statue made of?
+   ====
+   DELTA: 0
 """
 
 CAPTAIN_PROMPT = {
