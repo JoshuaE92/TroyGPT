@@ -14,6 +14,7 @@ app=FastAPI()
 class Chat(BaseModel):
     session_id: int
     message:str
+    
   
 
 
@@ -40,9 +41,10 @@ def chat(request: Chat, db: Session=Depends(get_db)):
    
    
     if reply:
-        parts=reply.split("====")
+        parts=re.split(r'=+', reply)
         pattern=re.compile(r'KEYPOINT:\s+(.+)')
-        pattern2=re.compile(r'DELTA:\s+(.+)')
+        pattern2 = re.compile(r'DELTA:\s*([+-]?\d+)')
+
         
 
         if pattern and len(parts)>1:
@@ -70,19 +72,54 @@ def chat(request: Chat, db: Session=Depends(get_db)):
                 current_game.conviction+=deltaint
                 current_game.conviction=max(0,min(current_game.conviction,100))
 
+        status="PLAYING"
 
+        if current_game.conviction>=100:
+            closing=build_closing_prompt(guard_level=current_game.guard_level, outcome="CONVINCED")
+            closing_message=get_ai_response(format_history,system_prompt=closing)
+            ai_message=save_message(db,session_id=current_game.id, role="assistant", content=closing_message, day=current_game.day, guard_level=current_game.guard_level)
+
+            
+
+            if current_game.guard_level==3:
+                current_game.game_state="WON"
+                status="WON"
+
+                
+            else:
+                current_game.guard_level+=1
+    
+                current_game.conviction=50
+                current_game.day=1
+                status="CONVINCED"
+            db.commit()
+            return {"reply":ai_message.content,"conviction":current_game.conviction,"status":status}
 
 
             
 
 
+
+        if current_game.conviction<=0:
+            closing=build_closing_prompt(guard_level=current_game.guard_level, outcome="DENIED")
+            closing_message=get_ai_response(format_history,system_prompt=closing)
+            ai_message=save_message(db,session_id=current_game.id, role="assistant", content=closing_message, day=current_game.day, guard_level=current_game.guard_level)
             
-        
+
+            if current_game.day==3:
+                current_game.game_state="LOSE"
+                status="LOSE"
+            else:
+                current_game.day+=1
+                current_game.conviction=50
+                status="DENIED"
+            db.commit()
+            return {"reply":ai_message.content,"conviction":current_game.conviction,"status":status}
 
     
-        
+    db.commit()   
     ai_message=save_message(db,session_id=current_game.id, role="assistant", content=parts[0].rstrip(), day=current_game.day, guard_level=current_game.guard_level)
-    return {"reply":ai_message.content,"conviction":current_game.conviction}
+    return {"reply":ai_message.content,"conviction":current_game.conviction,"status":status}
     
 
 #save the players message
