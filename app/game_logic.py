@@ -3,7 +3,7 @@ from app.models import GameSession
 from app.models import ChatMessage
 from app.models import KeyPoint
 from sqlalchemy import select
-from app.guards import GUARD_PROMPTS, TOKEN_RULES
+from app.guards import GUARD_PROMPTS, TOKEN_RULES, WORLD_CONTEXT, CONVERSATION_CONDUCT
 def create_game_session(db):
     new_session=GameSession()
     db.add(new_session)
@@ -38,14 +38,14 @@ def get_key_point(db,session_id,guard_level):
     return db.scalars(key_point).all()
 
 def build_guard_prompt(guard_level, day, key_points):
-    base=GUARD_PROMPTS[guard_level]["base_prompt"]
+    base=WORLD_CONTEXT + "\n\n" + GUARD_PROMPTS[guard_level]["base_prompt"] + CONVERSATION_CONDUCT
 
     notes="\n".join(f"-{kp.content}" for kp in key_points)
 
     if day==2:
-        base+="\n\nYou have seen this exact person before. This is their SECOND day trying to get past you — you turned them away yesterday. Be noticeably more suspicious than usual. Do not take their answers at face value; press harder on anything vague."
+        base+="\n\nThis person has been to the city gate before. This is the SECOND day they have shown up trying to get in — they were turned back yesterday. Word of repeat visitors travels among the guards, so be noticeably more suspicious than usual. Do not take their answers at face value; press harder on anything vague."
     if day==3:
-        base+="\n\nThis is the THIRD day this person has come to your gate, and you have already denied them twice. Be as analytical and strict as possible: actively hunt for any contradiction between what they say now and what they have claimed before. Treat even small inconsistencies as disqualifying, and assume they are hiding something."
+        base+="\n\nThis is the THIRD day this person has shown up at the city gate, and they have already been turned back twice. A third attempt after two rejections is a serious red flag. Be as analytical and strict as possible: actively hunt for any contradiction with what they have claimed on previous days, treat even small inconsistencies as disqualifying, and assume they are hiding something."
 
     if key_points:
         base += "\n\nNOTES FROM PRIOR ENCOUNTERS (reference these to catch inconsistencies):\n" + notes
@@ -60,10 +60,31 @@ def get_game_session(db,session_id):
     return db.scalar(statement)
 
 
+def build_closing_prompt(guard_level, outcome):
+    base = GUARD_PROMPTS[guard_level]["base_prompt"]
+
+    if outcome == "CONVINCED":
+        base += """
+---
+THE CONVERSATION IS OVER. The player has fully convinced you, and you are letting them and their large gift through the gate.
+
+Write ONE final message, in character:
+- Warmly and naturally tell them you're satisfied and are opening the gate for them.
+- You may briefly nod to the detail that won you over (the story they told, the reason for the gift).
+- This is goodbye — do NOT ask any further questions or invite more discussion.
+- Speak ONLY in-character dialogue. Do NOT output any notes, brackets, DELTA, KEYPOINT, ==== lines, or system tokens of any kind.
+"""
+
+    if outcome == "DENIED":
+        base += """
+---
+THE CONVERSATION IS OVER. You are NOT convinced, and you are turning the player away right now. The gate stays shut.
+
+Write ONE final message, in character:
+- Firmly and decisively tell them that they and their gift may not enter today.
+- You may briefly state what left you unconvinced, but do not argue or negotiate.
+- Do NOT let them through, and do NOT leave the door open for more attempts in this conversation.
+- Speak ONLY in-character dialogue. Do NOT output any notes, brackets, DELTA, KEYPOINT, ==== lines, or system tokens of any kind.
+"""
 
     return base
-
-
-
-
-
