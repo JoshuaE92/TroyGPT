@@ -93,7 +93,7 @@ def chat(request: Chat, db: Session=Depends(get_db)):
                 current_game.day=1
                 status="CONVINCED"
             db.commit()
-            return {"reply":ai_message.content,"conviction":current_game.conviction,"status":status}
+            return {"reply":ai_message.content,"conviction":current_game.conviction,"status":status,"day":current_game.day,"guard_level":current_game.guard_level}
 
 
             
@@ -113,15 +113,24 @@ def chat(request: Chat, db: Session=Depends(get_db)):
                 current_game.day+=1
                 current_game.conviction=50
                 status="DENIED"
+                
             db.commit()
-            return {"reply":ai_message.content,"conviction":current_game.conviction,"status":status}
+            eva_prompt=build_eva_response(key_points=key_points,history=format_history)
+            recap = get_ai_response([{"role": "user", "content": "How did I do? Give me my debrief."}],
+                        system_prompt=eva_prompt)
+
+            return {"reply":ai_message.content,"conviction":current_game.conviction,"status":status,"recap":recap,"day":current_game.day,"guard_level":current_game.guard_level}
 
     
     db.commit()   
     ai_message=save_message(db,session_id=current_game.id, role="assistant", content=parts[0].rstrip(), day=current_game.day, guard_level=current_game.guard_level)
-    return {"reply":ai_message.content,"conviction":current_game.conviction,"status":status}
+    return {"reply":ai_message.content,"conviction":current_game.conviction,"status":status,"day":current_game.day,"guard_level":current_game.guard_level}
     
 
-#save the players message
+@app.get("/session_id/{session_id}")
+def read_item(session_id:int,db:Session=Depends(get_db)): 
+        game=get_game_session(db,session_id=session_id)
+        greeting=get_gaurd_greeting(game.day,game.guard_level)
+        return{"greeting":greeting}
 
     
