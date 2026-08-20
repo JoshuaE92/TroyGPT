@@ -3,7 +3,7 @@ from app.models import GameSession
 from app.models import ChatMessage
 from app.models import KeyPoint
 from sqlalchemy import select
-from app.guards import GUARD_PROMPTS, TOKEN_RULES, WORLD_CONTEXT, CONVERSATION_CONDUCT
+from app.guards import GUARD_PROMPTS, TOKEN_RULES, WORLD_CONTEXT, CONVERSATION_CONDUCT, CAPTAIN_PROMPT, GUARD_GREETINGS
 def create_game_session(db):
     new_session=GameSession()
     db.add(new_session)
@@ -59,6 +59,14 @@ def get_game_session(db,session_id):
     statement=select(GameSession).where(GameSession.id==session_id)
     return db.scalar(statement)
 
+def build_eva_response(key_points,history):
+    notes="\n".join(f"-{kp.content}" for kp in key_points)
+    base=WORLD_CONTEXT + "\n\n" + CAPTAIN_PROMPT["base_prompt"]+notes
+
+
+    if key_points:
+        base+="\n\nNOTES FROM PRIOR ENCOUNTERS (reference these to point out to the user where they went wrong):\n" + notes
+    return base
 
 def build_closing_prompt(guard_level, outcome):
     base = GUARD_PROMPTS[guard_level]["base_prompt"]
@@ -88,3 +96,10 @@ Write ONE final message, in character:
 """
 
     return base
+
+
+def get_gaurd_greeting(day,guard):
+    greeting=GUARD_GREETINGS[guard][day]
+    return greeting
+
+

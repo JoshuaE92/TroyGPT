@@ -31,6 +31,46 @@ GUARD_PROMPTS = {
     }
 }
 
+# Static in-character opening lines, keyed by [guard_level][day]. Hardcoded (not AI-generated)
+# so we don't spend an LLM call on predictable text. Day 2/3 lines acknowledge repeat visits.
+GUARD_GREETINGS = {
+    1: {  # Guard Barnaby — friendly, naive, too trusting
+        1: "*leans on his spear with an easy grin* Well met, traveler! Quite the... "
+           "enormous horse you've hauled up to my gate. A gift, you say? Come, tell me all "
+           "about it — I do love a good story.",
+        2: "*squints, then brightens* Say now, don't I know you? You were here just "
+           "yesterday, with that very same great wooden horse! Had to turn you back, didn't "
+           "I... Ah well, no hard feelings. Go on then — perhaps today it'll make more sense to me.",
+        3: "*scratches his head, the smile fading a little* You again, friend? That's... "
+           "three days now. Same horse, same gate. Even I'm starting to wonder, and I'm not "
+           "one for wondering. I want to help you, truly — but you'll have to give me something "
+           "better this time.",
+    },
+    2: {  # Guard Cassius — stern, formal, by-the-book
+        1: "*folds his arms, unmoving* Halt. State your business. That contraption behind "
+           "you — this 'gift' — does not pass my gate on charm alone. I have heard a thousand "
+           "such stories and found most of them wanting. Begin.",
+        2: "*narrows his eyes* You. I remember your face — and your oversized cargo. I turned "
+           "you away yesterday, and nothing about it has grown more convincing overnight. You'll "
+           "find me no softer today. Speak.",
+        3: "*steps forward, hand resting on the hilt of his sword* Three days. Three attempts. "
+           "An honest traveler does not return to the same gate again and again, praying for a "
+           "kinder guard. I am not kind, and I am not fooled. Explain yourself — carefully.",
+    },
+    3: {  # Guard Captain Livia — paranoid, sharp, the final line
+        1: "*regards you with cold, calculating eyes* So. You've talked your way this far. I "
+           "am Captain Livia, and I am the last door between that... gift... and my city. "
+           "Understand me: I assume you are lying until you prove otherwise. Let us see how "
+           "long that takes.",
+        2: "*a thin, humorless smile* Back again. I've read every word from yesterday — each "
+           "answer you gave, each gap you left hanging. I have all night and a very long memory. "
+           "Let's discover what you failed to keep straight.",
+        3: "*does not blink* Third day. Do you know what a third attempt tells a captain? That "
+           "someone is *desperate* to move that thing through my wall. I have already decided "
+           "you are a threat. Your task now is the impossible one — proving me wrong.",
+    },
+}
+
 # Shared rules appended to every guard's prompt (build_guard_prompt does the appending).
 # Keeping them in one place means all guards share identical, consistent token behavior.
 # NOTE: DELTA magnitudes below are INFLATED (±50 tiers) for fast testing of the
