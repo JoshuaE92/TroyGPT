@@ -14,9 +14,12 @@ client=OpenAI(
 
 def get_ai_response(messages,system_prompt):
     formatted=[{"role":"system","content":system_prompt}]+messages
-    response=client.chat.completions.create(
-        model="openai/gpt-oss-20b",
-                messages=formatted,
+    try:
+        response=client.chat.completions.create(
+            model="openai/gpt-oss-20b",
+                    messages=formatted,
 
-    )
+        )
+    except Exception:
+        return None
     return response.choices[0].message.content
