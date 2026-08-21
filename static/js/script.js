@@ -101,10 +101,13 @@ function say(speaker, text) {
 }
 
 // ---- conviction meter + locked row ----
-function setConviction(v) {
-  state.conviction = v;
+function paintConviction(v) { // update the meter display only
   el("conviction-num").textContent = v;
   el("conviction-fill").style.width = v + "%";
+}
+function setConviction(v) { // update the meter AND the stored value
+  state.conviction = v;
+  paintConviction(v);
 }
 function setLocked(isLocked, label) {
   el("input-row").classList.toggle("is-hidden", isLocked);
@@ -223,12 +226,18 @@ async function send() {
 // ---- the status -> screen state machine (the core game logic) ----
 function handleChat(data) {
   const status = data.status || "PLAYING";
-  if (typeof data.conviction === "number") setConviction(data.conviction);
 
   if (status === "PLAYING") {
+    if (typeof data.conviction === "number") setConviction(data.conviction);
     say(GUARDS[state.level].name, data.reply || "...");
     return;
   }
+  // On a transition the backend already reset conviction to 50 for the NEXT round.
+  // Don't snap the bar to that 50 now (the confusing "went up when I lost" jump).
+  // Instead show the OUTCOME (full on a win, empty on a loss) during the closing,
+  // and stash the reset value so enterGate() shows it fresh next round.
+  if (typeof data.conviction === "number") state.conviction = data.conviction;
+  paintConviction(status === "CONVINCED" || status === "WON" ? 100 : 0);
   if (status === "CONVINCED") {
     say(GUARDS[state.level].name, data.reply); // current guard opens the gate
     state.gatesPassed = state.level;
