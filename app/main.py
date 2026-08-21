@@ -1,4 +1,6 @@
 from fastapi import FastAPI, Depends
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 import re
 
@@ -11,6 +13,12 @@ from pydantic import BaseModel
 
 
 app=FastAPI()
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+@app.get("/")
+def home():
+    return FileResponse("templates/index.html")
 
 class Chat(BaseModel):
     session_id: int

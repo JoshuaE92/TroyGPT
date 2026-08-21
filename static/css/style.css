@@ -1,158 +1,59 @@
-/* static/css/style.css */
-body, html {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    font-family: 'VT323', monospace;
-    font-size: 24px;
+/* The Gate of Troy — global styles.
+   Screen-specific layout stays inline in index.html (ported straight from the
+   Claude Design artboard so the look is exact); this file holds the globals,
+   pixel-art rendering, keyframes, and interaction states. */
+
+* { box-sizing: border-box; image-rendering: pixelated; -webkit-font-smoothing: none; font-smooth: never; }
+
+html, body { margin: 0; height: 100%; }
+body {
+  background: #131211;
+  color: #eae7e7;
+  font-family: 'VT323', monospace;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
 }
 
-#game-container {
-    width: 100%;
-    height: 100%;
-    background-image: url('../images/background1.jpg'); /* Default background */
-    background-size: cover;
-    background-position: center;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    align-items: center;
-    transition: background-image 0.5s ease-in-out;
+/* The 16:9 stage. container-type lets the cqw/cqh units inside scale with it. */
+.stage {
+  width: 100%;
+  max-width: 1600px;
+  aspect-ratio: 16 / 9;
+  position: relative;
+  container-type: size;
+  overflow: hidden;
+  background: #131211;
+  color: #eae7e7;
+  user-select: none;
 }
 
-#game-info {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    background-color: rgba(0, 0, 0, 0.7);
-    color: white;
-    padding: 10px 20px;
-    border-radius: 10px;
-    font-size: 28px;
-    border: 2px solid #fff;
-    text-shadow: 2px 2px #ff00ff;
-}
-#game-info span { margin: 0 10px; }
+image-slot img, .stage img { image-rendering: pixelated; }
+a { color: #c28d41; }
+a:hover { color: #e1ad66; }
 
-#character-portrait-container {
-    position: absolute;
-    bottom: 25%;
-    left: 5%;
-    width: 200px; /* Adjust as needed */
-    height: 400px; /* Adjust as needed */
-}
+/* Screens are shown/hidden by JS toggling the .is-hidden class. */
+.is-hidden { display: none !important; }
 
-#character-portrait {
-    width: 100%;
-    height: auto;
-    object-fit: contain;
-    transition: opacity 0.5s ease-in-out;
-    filter: drop-shadow(5px 5px 10px #000);
-}
+@keyframes blink  { 0%,49%{opacity:1} 50%,100%{opacity:0} }
+@keyframes rollup { 0%{opacity:0} 40%{opacity:0} 41%{opacity:1} 100%{opacity:1} }
+@keyframes nudge  { 0%,100%{transform:translateY(0);opacity:0.5} 50%{transform:translateY(0.4em);opacity:1} }
 
-#dialogue-container {
-    width: 80%;
-    max-width: 1000px;
-    position: absolute;
-    bottom: 80px;
-    margin-bottom: 20px;
-}
+input::placeholder { color: rgba(234,233,233,0.35); font-style: italic; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-thumb { background: rgba(194,141,65,0.4); }
+::selection { background: rgba(182,130,53,0.35); }
 
-#speaker-name-tag {
-    background-color: #2c3e50;
-    color: white;
-    padding: 10px 25px;
-    border-radius: 15px 15px 0 0;
-    display: inline-block;
-    border: 3px solid #bdc3c7;
-    border-bottom: none;
-    font-size: 28px;
-    position: relative;
-    left: 20px;
-    bottom: -3px;
-}
+/* Interactive states (the design's style-hover/style-focus attributes). */
+.btn { transition: background 0.2s, color 0.2s, border-color 0.2s; }
+.btn:hover { background: rgba(194,141,65,0.14); color: #ffe3bf; }
+.btn-ghost:hover { border-color: #b68235; color: #facb8d; }
+#player-input:focus { border-color: #b68235 !important; background: rgba(19,18,17,0.95) !important; }
 
-#dialogue-box {
-    background-color: rgba(0, 10, 20, 0.85);
-    color: white;
-    border: 3px solid #bdc3c7;
-    border-radius: 15px;
-    padding: 30px;
-    min-height: 120px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-    line-height: 1.5;
-}
+/* Visible keyboard focus for accessibility. */
+:focus-visible { outline: 3px solid #facb8d; outline-offset: 2px; }
 
-#typing-indicator {
-    color: #95a5a6;
-    font-style: italic;
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
 }
-
-#input-container {
-    width: 80%;
-    max-width: 1000px;
-    display: flex;
-    padding: 20px;
-    position: absolute;
-    bottom: 0;
-}
-
-#player-input {
-    flex-grow: 1;
-    padding: 15px;
-    border-radius: 10px 0 0 10px;
-    border: 2px solid #34495e;
-    font-family: 'VT323', monospace;
-    font-size: 22px;
-    background-color: #ecf0f1;
-}
-#player-input:focus {
-    outline: none;
-    border-color: #3498db;
-}
-
-#send-btn {
-    padding: 15px 25px;
-    border: 2px solid #34495e;
-    border-left: none;
-    border-radius: 0 10px 10px 0;
-    background-color: #3498db;
-    color: white;
-    font-family: 'Press Start 2P', cursive;
-    font-size: 16px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-#send-btn:hover { background-color: #2980b9; }
-
-.hidden { display: none !important; }
-
-#game-over-screen {
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background-color: rgba(0, 0, 0, 0.9);
-    color: white;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    z-index: 100;
-}
-#game-over-title { font-size: 72px; color: #e74c3c; text-shadow: 3px 3px #fff; }
-#game-over-text { font-size: 28px; max-width: 70%; line-height: 1.6; }
-#restart-btn {
-    margin-top: 40px;
-    padding: 20px 40px;
-    font-family: 'Press Start 2P', cursive;
-    font-size: 24px;
-    cursor: pointer;
-    background-color: #2ecc71;
-    color: white;
-    border: none;
-    border-radius: 10px;
-}
-#restart-btn:hover { background-color: #27ae60; }
