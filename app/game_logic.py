@@ -3,7 +3,7 @@ from app.models import GameSession
 from app.models import ChatMessage
 from app.models import KeyPoint
 from sqlalchemy import select
-from app.guards import GUARD_PROMPTS, TOKEN_RULES, WORLD_CONTEXT, CONVERSATION_CONDUCT, CAPTAIN_PROMPT, GUARD_GREETINGS
+from app.guards import GUARD_PROMPTS, TOKEN_RULES, WORLD_CONTEXT, CAPTAIN_PROMPT, GUARD_GREETINGS, DEMO_MODE, DEMO_OVERRIDE
 def create_game_session(db):
     new_session=GameSession()
     db.add(new_session)
@@ -38,7 +38,7 @@ def get_key_point(db,session_id,guard_level):
     return db.scalars(key_point).all()
 
 def build_guard_prompt(guard_level, day, key_points):
-    base=WORLD_CONTEXT + "\n\n" + GUARD_PROMPTS[guard_level]["base_prompt"] + CONVERSATION_CONDUCT
+    base=WORLD_CONTEXT + "\n\n" + GUARD_PROMPTS[guard_level]["base_prompt"] + GUARD_PROMPTS[guard_level]["conduct"]
 
     notes="\n".join(f"-{kp.content}" for kp in key_points)
 
@@ -52,6 +52,9 @@ def build_guard_prompt(guard_level, day, key_points):
 
 
     base+=TOKEN_RULES
+
+    if DEMO_MODE:
+        base+=DEMO_OVERRIDE
 
     return base
 
