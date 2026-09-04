@@ -6,6 +6,10 @@ An AI persuasion game built with **FastAPI** and an LLM. Each guard is a charact
 
 *(Working title — the name's still being decided.)*
 
+### ▶️ [Play it live → troygpt.onrender.com](https://troygpt.onrender.com/)
+
+> Hosted on Render's free tier — if it's been idle it may take ~30 seconds to wake up on the first load.
+
 ---
 
 ## How it plays
@@ -27,10 +31,11 @@ The guards **remember**. Come back a second or third day and they'll recognize y
 | Layer | Choice |
 |---|---|
 | API | [FastAPI](https://fastapi.tiangolo.com/) + Uvicorn |
-| Persistence | SQLAlchemy 2.0 ORM over SQLite (`game.db`) |
+| Persistence | SQLAlchemy 2.0 ORM — Postgres (Neon) in production, SQLite locally |
 | LLM | [Groq](https://groq.com/) via the OpenAI SDK (`openai/gpt-oss-20b`) |
 | Validation | Pydantic |
-| Frontend | *(in progress)* — static single-page app in `templates/` + `static/` |
+| Frontend | Vanilla-JS single-page app (state machine) in `templates/` + `static/` |
+| Hosting | [Render](https://render.com/) (web service) + [Neon](https://neon.tech/) (Postgres) |
 
 ---
 
@@ -144,12 +149,13 @@ Returns the current guard's in-character greeting for the session's guard/day. A
 
 ## Status & roadmap
 
-**Working:** full game engine — sessions, per-guard conversations, conviction scoring, keypoint memory, convinced/denied/won/lost transitions with persistence, guard greetings, and Captain Eva's debrief.
+**Working:** full game engine — sessions, per-guard conversations, conviction scoring, keypoint memory, convinced/denied/won/lost transitions with persistence, guard greetings, and Captain Eva's debrief. Graceful LLM error handling, a state-machine frontend (briefing → guard → debrief → win/lose), and a **live deployment** on Render backed by Postgres.
 
-**In progress / next:**
-- [ ] LLM error handling (graceful fallback when Groq rate-limits instead of a 500)
-- [ ] Frontend (state-machine SPA: briefing → guard → debrief → win/lose)
-- [ ] Retune conviction deltas back to normal pacing *(currently inflated in `guards.py` for faster testing)*
+**Next:**
+- [ ] Per-IP rate limiting on the LLM endpoints *(protect API credits on the public link)*
+- [ ] Lightweight play analytics *(how far players get, where they stall)*
+- [ ] Optional player accounts *(guest play stays the default — no login wall)*
+- [ ] Retune conviction deltas back to normal pacing *(currently inflated in `guards.py` for faster testing / demo)*
 
 ---
 
