@@ -3,6 +3,11 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 import re
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.util import get_remote_address
+from fastapi import Request
+
 
 from app.database import get_db
 from app.game_logic import*
@@ -11,8 +16,30 @@ import time
 
 from pydantic import BaseModel
 
+#goal is to get visitors ip adress as a string
+#we want to limit each ip adress
+#problen is render uses proxy so every proxy ip looks the same
+#need to get the real one
+def get_real_ip(request: Request)-> str:
+    forwarded=request.headers.get("X-Forwarded-For")
+
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    else:
+        return get_remote_address(request)
+        
+
+
+
+
+
+
 
 app=FastAPI()
+limiter=Limiter(key_func=get_real_ip)
+app.state.limiter=limiter
+app.add_exception_handler(RateLimitExceeded,_rate_limit_exceeded_handler)
+
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
@@ -28,7 +55,8 @@ class Chat(BaseModel):
 
 
 @app.post("/session")
-def new_session(db:Session=Depends(get_db)):
+@limiter.limit("10/minute")
+def new_session(request:Request,db:Session=Depends(get_db)):
     game=create_game_session(db)
     return{"session_id":game.id}
 
