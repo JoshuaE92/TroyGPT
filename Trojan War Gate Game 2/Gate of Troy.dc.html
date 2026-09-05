@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+  <script src="image-slot.js"></script>
+  <style>
+    body { margin:0; background:#131211; }
+    * { image-rendering:pixelated; -webkit-font-smoothing:none; font-smooth:never; }
+    image-slot img, image-slot canvas { image-rendering:pixelated; }
+    a { color:#c28d41; } a:hover { color:#e1ad66; }
+    @keyframes blink { 0%,49%{opacity:1} 50%,100%{opacity:0} }
+    @keyframes rollup { 0%{ opacity:0 } 40%{ opacity:0 } 41%{ opacity:1 } 100%{ opacity:1 } }
+    @keyframes nudge { 0%,100%{ transform:translateY(0); opacity:0.5 } 50%{ transform:translateY(0.4em); opacity:1 } }
+    input::placeholder { color:rgba(234,233,233,0.35); font-style:italic; }
+    ::-webkit-scrollbar { width:6px; } ::-webkit-scrollbar-thumb { background:rgba(194,141,65,0.4); }
+  </style>
+</helmet>
+
+<div style="width:100%;max-width:1600px;margin:0 auto;aspect-ratio:16/9;position:relative;container-type:size;overflow:hidden;background:#131211;font-family:'VT323', monospace;color:#eae7e7;user-select:none">
+
+  <sc-if value="{{ showGate }}" hint-placeholder-val="{{ true }}">
+  <div style="position:absolute;inset:0">
+    <image-slot id="troy-gate-backdrop" shape="rect" fit="cover" src="uploads/Gemini_Generated_Image_tauqhmtauqhmtauq.jpeg" placeholder="Drop the Troy gate backdrop (drawn, 16:9)"></image-slot>
+  </div>
+  <div style="position:absolute;inset:0;pointer-events:none;background:radial-gradient(120% 92% at 50% 34%, rgba(19,18,17,0) 28%, rgba(19,18,17,0.6) 76%, rgba(19,18,17,0.94) 100%)"></div>
+  <div style="position:absolute;inset:0;pointer-events:none;background:linear-gradient(to bottom, rgba(19,18,17,0.62) 0%, rgba(19,18,17,0.05) 20%, rgba(19,18,17,0.05) 40%, rgba(19,18,17,0.86) 76%, rgba(19,18,17,0.97) 100%)"></div>
+
+  <div style="position:absolute;left:50%;bottom:-9cqh;transform:translateX(-50%);width:36cqw;height:97cqh;filter:drop-shadow(0 2cqh 3.4cqh rgba(0,0,0,0.7))">
+    <image-slot id="troy-guard-portrait" shape="rect" fit="contain" src="{{ guardArt }}" placeholder="Guard portrait — transparent PNG"></image-slot>
+  </div>
+
+  <div style="position:absolute;top:3.6cqh;left:3cqw;display:flex;align-items:baseline;gap:0.9cqw;border-left:5px solid #b68235;padding-left:1cqw">
+    <span style="font-family:'Press Start 2P', monospace;font-weight:300;font-size:3cqw;line-height:1;color:#facb8d;font-feature-settings:'tnum'">{{ dayLabel }}</span>
+    <span style="display:flex;flex-direction:column;gap:0.2cqh">
+      <span style="font-family:'Press Start 2P', monospace;font-size:0.85cqw;letter-spacing:0.16em;text-transform:uppercase;color:#e1ad66">Day</span>
+      <span style="font-style:italic;font-size:1.35cqw;color:rgba(234,233,233,0.45)">of three</span>
+    </span>
+  </div>
+
+  <div style="position:absolute;top:4cqh;right:3cqw;width:22cqw;display:flex;flex-direction:column;gap:1cqh;align-items:flex-end">
+    <div style="font-family:'Press Start 2P', monospace;font-size:0.85cqw;letter-spacing:0.14em;text-transform:uppercase;color:rgba(234,233,233,0.6)">Gate {{ gateLabel }} of III</div>
+    <div style="width:100%;display:flex;flex-direction:column;gap:0.7cqh">
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <span style="font-family:'Press Start 2P', monospace;font-size:0.75cqw;letter-spacing:0.14em;text-transform:uppercase;color:rgba(234,233,233,0.45)">Conviction</span>
+        <span style="font-family:'Press Start 2P', monospace;font-size:1.05cqw;color:#facb8d;font-feature-settings:'tnum'">{{ conviction }}</span>
+      </div>
+      <div style="height:1.4cqh;border:3px solid #7d5411;border-radius:0;position:relative;overflow:hidden;background:rgba(19,18,17,0.6)">
+        <div style="position:absolute;inset:0;width:{{ convictionPct }};background:repeating-linear-gradient(to right, #c28d41 0 0.8cqw, transparent 0.8cqw 1cqw);transition:width 0.35s steps(8,end)"></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="position:absolute;left:8cqw;right:8cqw;bottom:3.4cqh;display:flex;flex-direction:column;gap:1.3cqh">
+    <div style="display:flex;align-items:flex-end;gap:1cqw;padding-left:1.6cqw;margin-bottom:-0.6cqh">
+      <div style="font-family:'Press Start 2P', monospace;font-weight:500;font-size:1.25cqw;letter-spacing:0.04em;color:#facb8d;text-transform:uppercase">{{ speakerName }}</div>
+      <div style="padding-bottom:0.5cqh;font-style:italic;font-size:1.4cqw;color:rgba(234,233,233,0.42)">{{ speakerTitle }}</div>
+    </div>
+
+    <div style="background:rgba(19,18,17,0.9);border:3px solid #7d5411;border-radius:0;padding:2.8cqh 2.6cqw;min-height:17cqh;display:flex;flex-direction:column;justify-content:center;gap:1cqh;box-shadow:0 0 0 4px #131211, 0 0 0 5px rgba(194,141,65,0.35)">
+      <div style="font-style:italic;font-size:1.45cqw;color:#e1ad66;line-height:1.4">{{ stageDirection }}</div>
+      <div style="font-size:2cqw;line-height:1.45;color:#eae7e7;text-wrap:pretty">{{ spoken }}<span style="animation:blink 1s step-end infinite;color:#b68235">{{ caret }}</span></div>
+    </div>
+
+    <sc-if value="{{ showInput }}" hint-placeholder-val="{{ true }}">
+    <div style="display:flex;gap:0.8cqw;align-items:stretch">
+      <input type="text" value="{{ draft }}" onChange="{{ onDraft }}" onKeyDown="{{ onKey }}" placeholder="{{ inputPlaceholder }}" style="flex:1;background:rgba(19,18,17,0.8);border:3px solid rgba(194,141,65,0.4);border-radius:0;color:#eae7e7;font-family:'VT323', monospace;font-size:1.6cqw;padding:1.4cqh 1.4cqw;outline:none" style-focus="border-color:#b68235;background:rgba(19,18,17,0.95)" />
+      <button onClick="{{ onSend }}" style="background:transparent;border:3px solid #b68235;border-radius:0;color:#facb8d;font-family:'Press Start 2P', monospace;font-weight:600;font-size:0.85cqw;letter-spacing:0.12em;text-transform:uppercase;padding:0 2.4cqw;cursor:pointer;transition:background 0.2s" style-hover="background:rgba(194,141,65,0.14);color:#ffe3bf">Speak</button>
+      <button onClick="{{ onToggleLog }}" style="background:transparent;border:3px solid rgba(234,233,233,0.22);border-radius:0;color:rgba(234,233,233,0.6);font-family:'Press Start 2P', monospace;font-size:0.85cqw;letter-spacing:0.12em;text-transform:uppercase;padding:0 1.6cqw;cursor:pointer" style-hover="border-color:#b68235;color:#facb8d">Ledger</button>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ locked }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;gap:0.8cqw;align-items:stretch">
+      <div style="flex:1;background:rgba(19,18,17,0.55);border:3px solid rgba(234,233,233,0.12);color:rgba(234,233,233,0.28);font-family:'VT323', monospace;font-size:1.6cqw;padding:1.4cqh 1.4cqw;font-style:italic">The conversation is over.</div>
+      <button onClick="{{ onOutcome }}" style="background:transparent;border:3px solid #b68235;border-radius:0;color:#facb8d;font-family:'Press Start 2P', monospace;font-weight:600;font-size:0.85cqw;letter-spacing:0.12em;text-transform:uppercase;padding:0 3cqw;cursor:pointer;transition:background 0.2s" style-hover="background:rgba(194,141,65,0.14);color:#ffe3bf">{{ outcomeLabel }}</button>
+    </div>
+    </sc-if>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ showLog }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;inset:0;background:rgba(19,18,17,0.72);display:flex;justify-content:flex-end">
+      <div style="width:38cqw;height:100%;background:#161514;border-left:4px solid #7d5411;display:flex;flex-direction:column">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;padding:4cqh 2.4cqw 2cqh;border-bottom:1px solid rgba(234,233,233,0.14)">
+          <div style="font-family:'Press Start 2P', monospace;font-size:1.1cqw;color:#facb8d">The Ledger</div>
+          <button onClick="{{ onToggleLog }}" style="background:transparent;border:3px solid rgba(234,233,233,0.22);border-radius:0;color:rgba(234,233,233,0.6);font-family:'Press Start 2P', monospace;font-size:0.75cqw;letter-spacing:0.12em;text-transform:uppercase;padding:0.9cqh 1.1cqw;cursor:pointer" style-hover="border-color:#b68235;color:#facb8d">Close</button>
+        </div>
+        <div style="flex:1;overflow-y:auto;padding:1cqh 2.4cqw 3cqh">
+          <sc-for list="{{ log }}" as="entry" hint-placeholder-count="3">
+            <div style="padding:1.8cqh 0;border-bottom:1px solid rgba(234,233,233,0.1);display:flex;flex-direction:column;gap:0.6cqh">
+              <div style="display:flex;justify-content:space-between;align-items:baseline">
+                <span style="font-family:'Press Start 2P', monospace;font-size:0.8cqw;letter-spacing:0.12em;text-transform:uppercase;color:#e1ad66">{{ entry.who }}</span>
+                <span style="font-size:0.85cqw;color:rgba(234,233,233,0.35);font-feature-settings:'tnum'">{{ entry.stamp }}</span>
+              </div>
+              <div style="font-size:1.4cqw;line-height:1.45;color:rgba(234,233,233,0.8);text-align:left">{{ entry.text }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ showEva }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;inset:0;background:#161514">
+      <div style="position:absolute;inset:0;opacity:0.55"><image-slot id="troy-camp-backdrop" shape="rect" fit="cover" placeholder=" "></image-slot></div>
+      <div style="position:absolute;inset:0;background:radial-gradient(110% 88% at 50% 36%, rgba(19,18,17,0) 26%, rgba(19,18,17,0.66) 74%, rgba(19,18,17,0.95) 100%)"></div>
+      <div style="position:absolute;inset:0;background:linear-gradient(to bottom, rgba(19,18,17,0.6) 0%, rgba(19,18,17,0.05) 22%, rgba(19,18,17,0.05) 40%, rgba(19,18,17,0.88) 76%, rgba(19,18,17,0.97) 100%)"></div>
+
+      <div style="position:absolute;left:50%;bottom:-9cqh;transform:translateX(-50%);width:36cqw;height:97cqh;filter:drop-shadow(0 2cqh 3.4cqh rgba(0,0,0,0.7))">
+        <image-slot id="eva-portrait" shape="rect" fit="contain" placeholder="Captain Eva portrait — transparent PNG"></image-slot>
+      </div>
+
+      <div style="position:absolute;top:4cqh;left:3cqw;border-left:5px solid #b68235;padding-left:1cqw;display:flex;flex-direction:column;gap:0.4cqh">
+        <span style="font-family:'Press Start 2P', monospace;font-size:0.8cqw;letter-spacing:0.16em;text-transform:uppercase;color:#e1ad66">{{ evaKicker }}</span>
+        <span style="font-style:italic;font-size:1.35cqw;color:rgba(234,233,233,0.45)">The Greek camp, beyond the ridge</span>
+      </div>
+
+      <div style="position:absolute;left:8cqw;right:8cqw;bottom:5cqh;display:flex;flex-direction:column;gap:1.3cqh">
+        <div style="display:flex;align-items:flex-end;gap:1cqw;padding-left:1.6cqw;margin-bottom:-0.6cqh">
+          <div style="font-family:'Press Start 2P', monospace;font-weight:500;font-size:1.25cqw;letter-spacing:0.04em;color:#facb8d;text-transform:uppercase">Captain Eva</div>
+          <div style="padding-bottom:0.5cqh;font-style:italic;font-size:1.4cqw;color:rgba(234,233,233,0.42)">who thought of the horse in the first place</div>
+        </div>
+        <div onClick="{{ onEvaNext }}" style="cursor:pointer;background:rgba(19,18,17,0.9);border:3px solid #7d5411;border-radius:0;padding:2.8cqh 2.6cqw;min-height:19cqh;display:flex;flex-direction:column;justify-content:center;gap:1cqh;box-shadow:0 0 0 4px #131211, 0 0 0 5px rgba(194,141,65,0.35);position:relative">
+          <div style="font-style:italic;font-size:1.45cqw;color:#e1ad66;line-height:1.4">{{ evaAction }}</div>
+          <div style="font-size:2cqw;line-height:1.45;color:#eae7e7;text-wrap:pretty">{{ evaSpoken }}<span style="animation:blink 1s step-end infinite;color:#b68235">{{ evaCaret }}</span></div>
+          <div style="position:absolute;right:1.6cqw;bottom:1.2cqh;display:flex;align-items:center;gap:0.6cqw;font-family:'Press Start 2P', monospace;font-size:0.9cqw;letter-spacing:0.15em;text-transform:uppercase;color:rgba(234,233,233,0.45)">
+            <span>{{ evaCue }}</span><span style="animation:nudge 1.4s ease-in-out infinite;color:#b68235">▾</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ showRoll }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ onRollSkip }}" style="position:absolute;inset:0;background:#000;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2.6cqh;padding:0 14cqw;text-align:center">
+      <sc-for list="{{ rollLines }}" as="line" hint-placeholder-count="2">
+        <div style="font-family:'Press Start 2P', monospace;font-weight:300;font-size:1.7cqw;line-height:1.9;color:#fff;letter-spacing:0.04em;opacity:0;animation:rollup 0.9s ease forwards;animation-delay:{{ line.delay }}">{{ line.text }}</div>
+      </sc-for>
+      <div style="position:absolute;bottom:4cqh;font-family:'Press Start 2P', monospace;font-size:0.75cqw;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.32)">Click to continue</div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ showTitle }}" hint-placeholder-val="{{ true }}">
+    <div style="position:absolute;inset:0;background:#131211;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3cqh">
+      <div style="font-family:'Press Start 2P', monospace;font-size:0.8cqw;letter-spacing:0.12em;text-transform:uppercase;color:#e1ad66">A game of persuasion</div>
+      <div style="text-align:center;display:flex;flex-direction:column;gap:1.6cqh;padding:0 4cqw">
+        <div style="width:14cqw;height:4px;background:#b68235;margin:0 auto"></div>
+        <h1 style="font-family:'Press Start 2P', monospace;font-weight:300;font-size:3.4cqw;line-height:1.25;margin:0;color:#f8f4f4">The Gate of Troy</h1>
+        <div style="width:14cqw;height:4px;background:#b68235;margin:0 auto"></div>
+        <p style="max-width:46cqw;margin:1.4cqh auto 0;font-size:1.7cqw;line-height:1.55;text-align:left;color:rgba(234,233,233,0.7)">Talk your way past the guards of Troy. You have rolled an enormous wooden gift up to the city gate — now convince the guards to let it through. They do not know what is inside. Yet.</p>
+      </div>
+      <button onClick="{{ onBegin }}" style="margin-top:2cqh;background:transparent;border:3px solid #b68235;border-radius:0;color:#facb8d;font-family:'Press Start 2P', monospace;font-weight:600;font-size:0.95cqw;letter-spacing:0.16em;text-transform:uppercase;padding:1.6cqh 3.4cqw;cursor:pointer" style-hover="background:rgba(194,141,65,0.14);color:#ffe3bf">Begin</button>
+      <div style="position:absolute;bottom:3cqh;font-style:italic;font-size:1.3cqw;color:rgba(234,233,233,0.3)">Three guards. Three days each. One story to keep straight.</div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ showEnd }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;inset:0;background:#131211;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2.6cqh;text-align:center">
+      <div style="font-family:'Press Start 2P', monospace;font-size:0.8cqw;letter-spacing:0.2em;text-transform:uppercase;color:#e1ad66">{{ endKicker }}</div>
+      <h2 style="font-family:'Press Start 2P', monospace;font-weight:300;font-size:3cqw;margin:0;color:#f8f4f4">{{ endTitle }}</h2>
+      <div style="width:22cqw;height:4px;background:#b68235"></div>
+      <p style="max-width:42cqw;font-size:1.65cqw;line-height:1.555;text-align:left;color:rgba(234,233,233,0.75)">{{ endBody }}</p>
+      <div style="display:flex;gap:3cqw;margin-top:1.6cqh">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:0.5cqh">
+          <span style="font-family:'Press Start 2P', monospace;font-weight:300;font-size:2.2cqw;color:#facb8d;font-feature-settings:'tnum'">{{ statDays }}</span>
+          <span style="font-family:'Press Start 2P', monospace;font-size:0.72cqw;letter-spacing:0.14em;text-transform:uppercase;color:rgba(234,233,233,0.45)">Days spent</span>
+        </div>
+        <div style="width:1px;background:rgba(234,233,233,0.16)"></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:0.5cqh">
+          <span style="font-family:'Press Start 2P', monospace;font-weight:300;font-size:2.2cqw;color:#facb8d;font-feature-settings:'tnum'">{{ statGates }}</span>
+          <span style="font-family:'Press Start 2P', monospace;font-size:0.72cqw;letter-spacing:0.14em;text-transform:uppercase;color:rgba(234,233,233,0.45)">Gates passed</span>
+        </div>
+      </div>
+      <button onClick="{{ onRestart }}" style="margin-top:2cqh;background:transparent;border:3px solid #b68235;border-radius:0;color:#facb8d;font-family:'Press Start 2P', monospace;font-weight:600;font-size:0.9cqw;letter-spacing:0.14em;text-transform:uppercase;padding:1.6cqh 3cqw;cursor:pointer" style-hover="background:rgba(194,141,65,0.14)">Begin again</button>
+    </div>
+  </sc-if>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1600,&quot;height&quot;:900},&quot;startScreen&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;title&quot;,&quot;briefing&quot;,&quot;gate&quot;,&quot;convinced&quot;,&quot;debrief&quot;,&quot;win&quot;,&quot;lose&quot;],&quot;default&quot;:&quot;title&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Screen&quot;},&quot;typeSpeed&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:20,&quot;min&quot;:5,&quot;max&quot;:60,&quot;step&quot;:1,&quot;unit&quot;:&quot;ms&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Feel&quot;},&quot;inputPlaceholder&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Say something to the guard…&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Copy&quot;}}">
+const GUARDS = {
+  1: { name: "Guard Barnaby", title: "of the outer gate — friendly, and far too trusting" },
+  2: { name: "Guard Cassius", title: "of the second gate — stern, and by the book" },
+  3: { name: "Captain Livia", title: "of the inner gate — paranoid, and never wrong" }
+};
+
+const GREETINGS = {
+  1: {
+    1: "*leans on his spear with an easy grin* Well met, traveler! Quite the... enormous horse you've hauled up to my gate. A gift, you say? Come, tell me all about it — I do love a good story.",
+    2: "*squints, then brightens* Say now, don't I know you? You were here just yesterday, with that very same great wooden horse! Had to turn you back, didn't I... Ah well, no hard feelings. Go on then — perhaps today it'll make more sense to me.",
+    3: "*scratches his head, the smile fading a little* You again, friend? That's... three days now. Same horse, same gate. Even I'm starting to wonder, and I'm not one for wondering. I want to help you, truly — but you'll have to give me something better this time."
+  },
+  2: {
+    1: "*folds his arms, unmoving* Halt. State your business. That contraption behind you — this 'gift' — does not pass my gate on charm alone. I have heard a thousand such stories and found most of them wanting. Begin.",
+    2: "*narrows his eyes* You. I remember your face — and your oversized cargo. I turned you away yesterday, and nothing about it has grown more convincing overnight. You'll find me no softer today. Speak.",
+    3: "*steps forward, hand resting on the hilt of his sword* Three days. Three attempts. An honest traveler does not return to the same gate again and again, praying for a kinder guard. I am not kind, and I am not fooled. Explain yourself — carefully."
+  },
+  3: {
+    1: "*regards you with cold, calculating eyes* So. You've talked your way this far. I am Captain Livia, and I am the last door between that... gift... and my city. Understand me: I assume you are lying until you prove otherwise. Let us see how long that takes.",
+    2: "*a thin, humorless smile* Back again. I've read every word from yesterday — each answer you gave, each gap you left hanging. I have all night and a very long memory. Let's discover what you failed to keep straight.",
+    3: "*does not blink* Third day. Do you know what a third attempt tells a captain? That someone is *desperate* to move that thing through my wall. I have already decided you are a threat. Your task now is the impossible one — proving me wrong."
+  }
+};
+
+// Front-end stand-ins for POST /chat while the FastAPI backend isn't wired up.
+const STUBS = {
+  1: [["*nods along happily* Olive wood, you say! My cousin works olive wood. And it's hollow because...?", 20],
+      ["*taps the horse's flank* Sounds honest enough to me. Though the captain will want more than 'about right', mind.", 30]],
+  2: [["*consults a wax tablet* You said the festival was at dawn. A moment ago you said dusk. Which is it, traveler?", -25],
+      ["*unmoved* Specifics. Weight, timber, who commissioned it. Charm is not a document.", -10]],
+  3: [["*circles the horse slowly* Nothing enters this wall unopened. Give me one reason that regulation should bend for you.", -20],
+      ["*still watching you* You answer quickly. People who have rehearsed always do.", -15]]
+};
+
+const CLOSING = {
+  1: "*shakes his head, almost apologetic* No. No, I don't think so. I want to believe you, friend, I truly do — but wanting isn't the same as believing. Off with you. Come back when the story sits better in your mouth.",
+  2: "*already turning away* Enough. Your account has holes and I have a gate to hold. Take your horse back down the hill.",
+  3: "*raises a hand; the spears come down* We are finished. Whatever that thing is, it does not enter Troy tonight. Move."
+};
+
+const OPENED = {
+  1: "Ah, go on then! A festival gift ought to be seen by the city it's meant for. Mind the lintel — she's a tall one.",
+  2: "Your account holds together, and I have found nothing in it that lies. The bar comes up. Do not make me regret it.",
+  3: "I still do not like it. But dislike is not evidence, and I do not hold a gate on feeling alone. Take it through."
+};
+
+const BRIEFING = [
+  "*checks the ropes on the horse one last time* Right. Listen, because I will only lay it out once. That is our horse, and inside it are our men, and the only thing standing between them and the inside of Troy is your mouth.",
+  "*counts on her fingers* Three gates. Three guards, and each one harder than the last. Barnaby will believe almost anything. Cassius believes documents. Livia believes nothing at all.",
+  "You get three days at each gate. Talk to your guard, answer what he asks, and keep his conviction climbing — if it hits the floor, he sends you home and the day is gone.",
+  "*puts a hand on your shoulder* One more thing, and it matters most: they remember. Whatever you tell one guard, tell the next the same. A story that changes is a story that gets you killed.",
+  "That's the whole of it. Go on — it's a long walk up the hill."
+];
+
+const DEBRIEFS = {
+  1: [
+    "*hands you water, doesn't ask how it went* I already know. Sit.",
+    "*grimly* You stayed calm, which is more than most manage. But he kept circling one question and you kept walking around it — a guard reads that as hiding, every time.",
+    "Tomorrow: answer the thing he actually asked, then give him one detail he didn't ask for. Volunteered detail sounds like truth. Withheld detail sounds like a plan.",
+    "*nods toward your bedroll* Sleep. The gate's still there in the morning."
+  ],
+  2: [
+    "*doesn't look up from the map* Twice now. Tell me you learned something.",
+    "You changed your story. I don't need to have been there — I can hear it in how you're telling it to me now. He heard it too.",
+    "Pick your version tonight and don't move off it. A dull story you can repeat beats a good one you can't.",
+    "*rolls the map up* Last day at this gate. Make it hold."
+  ],
+  3: [
+    "*quietly* Three days. That's all we had for him.",
+    "You weren't wrong about the approach. You were slow, and slow at a gate looks like calculation.",
+    "*shrugs, tired* We can't try that guard again. Whatever comes next, we go in shorter and surer."
+  ]
+};
+
+const ROLLS = {
+  approach: {
+    1: ["The road to Troy runs uphill and does not hurry.", "Behind you, the horse creaks on its rollers.", "At the first gate, a guard raises his lamp."],
+    2: ["Word travels faster than a wooden horse.", "The second gate is smaller, and better watched.", "A guard is already waiting for you."],
+    3: ["Past the second wall, the city breathes on you.", "The last gate is barely a gate at all — a corridor of spears.", "A captain steps into the lamplight."]
+  },
+  retreat: ["The gate closes behind you.", "You hurry back to camp before the light comes.", "Eva is awake. Eva is always awake."],
+  night: ["Night. Then another day at the same gate."]
+};
+
+class Component extends DCLogic {
+  state = {
+    screen: "title", day: 1, level: 1, conviction: 50, gatesPassed: 0, turn: 0, outcome: null,
+    speaker: null, action: "", typed: "", draft: "", busy: false, showLog: false, log: [],
+    evaLines: [], evaIndex: 0, evaAction: "", evaTyped: "", evaBusy: false, evaKicker: "",
+    rollLines: [], rollNext: null
+  };
+
+  componentDidMount() {
+    const s = this.props.startScreen ?? "title";
+    if (s !== "title") this.jump(s);
+  }
+  componentDidUpdate(prev) {
+    if (prev.startScreen !== this.props.startScreen && this.props.startScreen) this.jump(this.props.startScreen);
+  }
+  componentWillUnmount() { [this.timer, this.evaTimer].forEach(clearInterval); clearTimeout(this.replyTimer); }
+
+  jump(s) {
+    if (s === "title") { this.restart(); return; }
+    if (s === "briefing") { this.startEva(BRIEFING, "Briefing — the night before"); this.setState({ screen: "eva", rollNext: "approach" }); return; }
+    if (s === "debrief") { this.startEva(DEBRIEFS[this.state.day], "Debrief — end of day " + this.state.day); this.setState({ screen: "eva", rollNext: "night" }); return; }
+    if (s === "gate") { this.setState({ screen: "gate" }); this.greet(this.state.level, this.state.day); return; }
+    this.setState({ screen: s });
+  }
+
+  stamp() { return "Day " + this.state.day + " · Gate " + this.state.level; }
+  split(text) {
+    const m = text.match(/^\*(.+?)\*\s*/);
+    return [m ? m[1] : "", m ? text.slice(m[0].length) : text];
+  }
+  speed() { return this.props.typeSpeed ?? 20; }
+
+  greet(level, day) { this.say(GUARDS[level].name, GREETINGS[level][day]); }
+
+  say(speaker, text) {
+    const [action, full] = this.split(text);
+    this.setState(s => ({ speaker, action, typed: "", busy: true, log: s.log.concat([{ who: speaker, text: full, stamp: this.stamp() }]) }));
+    clearInterval(this.timer);
+    let i = 0;
+    this.timer = setInterval(() => {
+      i++;
+      this.setState({ typed: full.slice(0, i) });
+      if (i >= full.length) { clearInterval(this.timer); this.setState({ busy: false }); }
+    }, this.speed());
+  }
+
+  startEva(lines, kicker) {
+    this.setState({ evaLines: lines, evaIndex: 0, evaKicker: kicker });
+    this.typeEva(lines[0]);
+  }
+
+  typeEva(text) {
+    const [action, full] = this.split(text);
+    this.setState({ evaAction: action, evaTyped: "", evaBusy: true });
+    clearInterval(this.evaTimer);
+    let i = 0;
+    this.evaTimer = setInterval(() => {
+      i++;
+      this.setState({ evaTyped: full.slice(0, i) });
+      if (i >= full.length) { clearInterval(this.evaTimer); this.setState({ evaBusy: false }); }
+    }, this.speed());
+  }
+
+  evaNext = () => {
+    const s = this.state;
+    if (s.evaBusy) {
+      clearInterval(this.evaTimer);
+      this.setState({ evaTyped: this.split(s.evaLines[s.evaIndex])[1], evaBusy: false });
+      return;
+    }
+    const next = s.evaIndex + 1;
+    if (next < s.evaLines.length) { this.setState({ evaIndex: next }); this.typeEva(s.evaLines[next]); return; }
+    if (s.rollNext === "approach") { this.roll(ROLLS.approach[s.level], "gate"); return; }
+    if (s.rollNext === "night") { this.roll(ROLLS.night, "nextday"); return; }
+    this.setState({ screen: "gate" });
+  };
+
+  roll(lines, after) {
+    this.setState({ screen: "roll", rollLines: lines, rollAfter: after });
+    clearTimeout(this.rollTimer);
+    this.rollTimer = setTimeout(this.rollDone, 1400 + lines.length * 1300);
+  }
+
+  rollDone = () => {
+    clearTimeout(this.rollTimer);
+    const after = this.state.rollAfter;
+    if (after === "gate") { this.setState({ screen: "gate", rollAfter: null }); this.greet(this.state.level, this.state.day); return; }
+    if (after === "nextday") {
+      const day = this.state.day + 1;
+      this.setState({ screen: "gate", day, conviction: 50, turn: 0, outcome: null, rollAfter: null });
+      this.greet(this.state.level, day);
+      return;
+    }
+    if (after === "debrief") {
+      const day = this.state.day;
+      this.setState({ screen: "eva", rollNext: day >= 3 ? null : "night", rollAfter: null });
+      this.startEva(DEBRIEFS[day], "Debrief — end of day " + day);
+      return;
+    }
+    if (after === "lose") { this.setState({ screen: "lose", rollAfter: null }); return; }
+  };
+
+  send = () => {
+    const text = this.state.draft.trim();
+    if (!text) return;
+    this.setState({ draft: "" });
+    this.say("You", text);
+    const lvl = this.state.level;
+    const pool = STUBS[lvl];
+    const [reply, delta] = pool[this.state.turn % pool.length];
+    clearTimeout(this.replyTimer);
+    this.replyTimer = setTimeout(() => {
+      const next = Math.max(0, Math.min(100, this.state.conviction + delta));
+      this.setState(s => ({ turn: s.turn + 1, conviction: next }));
+      if (next >= 100) { this.finish("pass"); return; }
+      if (next <= 0) { this.finish("fail"); return; }
+      this.say(GUARDS[lvl].name, reply);
+    }, Math.min(3600, text.length * this.speed() + 800));
+  };
+
+  finish(kind) {
+    const lvl = this.state.level;
+    this.say(GUARDS[lvl].name, kind === "pass" ? OPENED[lvl] : CLOSING[lvl]);
+    this.setState({ outcome: kind });
+  }
+
+  outcomeGo = () => {
+    const s = this.state;
+    if (s.outcome === "pass") {
+      if (s.level >= 3) { this.setState({ screen: "win", gatesPassed: 3, outcome: null }); return; }
+      this.setState({ level: s.level + 1, day: 1, conviction: 50, turn: 0, gatesPassed: s.level, outcome: null });
+      this.roll(ROLLS.approach[s.level + 1], "gate");
+      return;
+    }
+    this.setState({ outcome: null });
+    this.roll(ROLLS.retreat, s.day >= 3 ? "lose" : "debrief");
+  };
+
+  begin = () => { this.setState({ screen: "eva", rollNext: "approach" }); this.startEva(BRIEFING, "Briefing — the night before"); };
+
+  restart = () => {
+    [this.timer, this.evaTimer].forEach(clearInterval);
+    this.setState({ screen: "title", day: 1, level: 1, conviction: 50, gatesPassed: 0, turn: 0, log: [], typed: "", action: "", speaker: null, evaLines: [], evaTyped: "" });
+  };
+
+  renderVals() {
+    const s = this.state;
+    const lvl = s.level;
+    const won = s.screen === "win";
+    return {
+      dayLabel: String(s.day),
+      gateLabel: ["I", "II", "III"][lvl - 1],
+      conviction: String(s.conviction),
+      convictionPct: s.conviction + "%",
+      speakerName: s.speaker || GUARDS[lvl].name,
+      speakerTitle: s.speaker === "You" ? "traveler at the gate" : GUARDS[lvl].title,
+      stageDirection: s.action,
+      spoken: s.typed,
+      caret: s.busy ? "█" : "",
+      draft: s.draft,
+      inputPlaceholder: this.props.inputPlaceholder ?? "Say something to the guard…",
+      log: s.log.slice().reverse(),
+      showLog: s.showLog,
+      showGate: s.screen === "gate",
+      showInput: !s.outcome,
+      locked: !!s.outcome,
+      outcomeLabel: s.outcome === "pass" ? (s.level >= 3 ? "Take the horse inside" : "Approach gate " + ["I","II","III"][s.level]) : "Head back to camp",
+      onOutcome: this.outcomeGo,
+      guardArt: [ "art/barnaby.png", "art/cassius.png", "art/livia.png" ][lvl - 1],
+      showTitle: s.screen === "title",
+      showEva: s.screen === "eva",
+      showRoll: s.screen === "roll",
+      showEnd: won || s.screen === "lose",
+      evaKicker: s.evaKicker,
+      evaAction: s.evaAction,
+      evaSpoken: s.evaTyped,
+      evaCaret: s.evaBusy ? "█" : "",
+      evaCue: s.evaBusy ? "Skip" : (s.evaIndex >= s.evaLines.length - 1 ? "Okay" : "Continue"),
+      onEvaNext: this.evaNext,
+      rollLines: s.rollLines.map((text, i) => ({ text, delay: (0.35 + i * 1.25) + "s" })),
+      onRollSkip: this.rollDone,
+      endKicker: won ? "The horse is inside the walls" : "Turned away",
+      endTitle: won ? "Troy sleeps behind you" : "The gate stays shut",
+      endBody: won ? "Three guards, three stories, one gate at a time. The horse stands in the square and the city has gone to bed. Whatever happens next is no longer a matter of persuasion." : "Three days at the same gate and the same guard, and nothing you said held together long enough to move him. Eva has already started writing the report.",
+      statDays: String(won ? 3 : s.day),
+      statGates: String(won ? 3 : s.gatesPassed),
+      onDraft: e => this.setState({ draft: e.target.value }),
+      onKey: e => { if (e.key === "Enter") this.send(); },
+      onSend: this.send,
+      onToggleLog: () => this.setState(st => ({ showLog: !st.showLog })),
+      onBegin: this.begin,
+      onRestart: this.restart
+    };
+  }
+}
+</script>
+</body>
+</html>

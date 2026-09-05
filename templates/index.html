@@ -1,63 +1,156 @@
-<!-- templates/index.html (Corrected) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Let Me In – The Trojan Horse AI Game</title>
-
-  <!-- Styles and Fonts -->
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The Gate of Troy</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=VT323&family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
-  <div id="game-container">
-    <div id="game-info">
-      <span id="day-counter">Day: {{ session.get('day', 1) }}</span>
-      <span id="guard-counter">Guard: {{ session.get('guard_level', 1) }}/3</span>
+<div class="stage" style="font-family:'VT323', monospace;color:#eae7e7">
+
+  <!-- ================= TITLE ================= -->
+  <div id="screen-title" style="position:absolute;inset:0;background:#131211;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3cqh">
+    <div style="font-family:'Press Start 2P', monospace;font-size:0.8cqw;letter-spacing:0.12em;text-transform:uppercase;color:#e1ad66">A game of persuasion</div>
+    <div style="text-align:center;display:flex;flex-direction:column;gap:1.6cqh;padding:0 4cqw">
+      <div style="width:14cqw;height:4px;background:#b68235;margin:0 auto"></div>
+      <h1 style="font-family:'Press Start 2P', monospace;font-weight:300;font-size:3.4cqw;line-height:1.25;margin:0;color:#f8f4f4">The Gate of Troy</h1>
+      <div style="width:14cqw;height:4px;background:#b68235;margin:0 auto"></div>
+      <p style="max-width:46cqw;margin:1.4cqh auto 0;font-size:1.7cqw;line-height:1.55;text-align:left;color:rgba(234,233,233,0.7)">Talk your way past the guards of Troy. You have rolled an enormous wooden gift up to the city gate — now convince the guards to let it through. They do not know what is inside. Yet.</p>
+    </div>
+    <button id="begin-btn" class="btn" style="margin-top:2cqh;background:transparent;border:3px solid #b68235;border-radius:0;color:#facb8d;font-family:'Press Start 2P', monospace;font-weight:600;font-size:0.95cqw;letter-spacing:0.16em;text-transform:uppercase;padding:1.6cqh 3.4cqw;cursor:pointer">Begin</button>
+    <div style="position:absolute;bottom:3cqh;font-style:italic;font-size:1.3cqw;color:rgba(234,233,233,0.3)">Three guards. Three days each. One story to keep straight.</div>
+  </div>
+
+  <!-- ================= EVA (briefing / debrief) ================= -->
+  <div id="screen-eva" class="is-hidden" style="position:absolute;inset:0;background:#161514">
+    <div style="position:absolute;inset:0"><img src="/static/images/camp-bg.png" alt="" style="width:100%;height:100%;object-fit:cover"></div>
+    <div style="position:absolute;inset:0;background:radial-gradient(110% 88% at 50% 36%, rgba(19,18,17,0) 26%, rgba(19,18,17,0.66) 74%, rgba(19,18,17,0.95) 100%)"></div>
+    <div style="position:absolute;inset:0;background:linear-gradient(to bottom, rgba(19,18,17,0.6) 0%, rgba(19,18,17,0.05) 22%, rgba(19,18,17,0.05) 40%, rgba(19,18,17,0.88) 76%, rgba(19,18,17,0.97) 100%)"></div>
+
+    <img id="eva-portrait" src="/static/images/eva.png" alt="Captain Eva" style="position:absolute;left:50%;bottom:-9cqh;transform:translateX(-50%);width:36cqw;height:97cqh;object-fit:contain;filter:drop-shadow(0 2cqh 3.4cqh rgba(0,0,0,0.7))">
+
+    <div style="position:absolute;top:4cqh;left:3cqw;border-left:5px solid #b68235;padding-left:1cqw;display:flex;flex-direction:column;gap:0.4cqh">
+      <span id="eva-kicker" style="font-family:'Press Start 2P', monospace;font-size:0.8cqw;letter-spacing:0.16em;text-transform:uppercase;color:#e1ad66">Briefing — the night before</span>
+      <span style="font-style:italic;font-size:1.35cqw;color:rgba(234,233,233,0.45)">The Greek camp, beyond the ridge</span>
     </div>
 
-    <div id="character-portrait-container">
-      <img id="character-portrait"
-           src="{{ url_for('static', filename='images/' + session.chat_history[0]['portrait'].split('/')[-1]) }}"
-           alt="Character Portrait" />
-    </div>
-
-    <div id="dialogue-container">
-      <div id="speaker-name-tag">
-        <span id="speaker-name">{{ session.chat_history[0]['name'] }}</span>
+    <div style="position:absolute;left:8cqw;right:8cqw;bottom:5cqh;display:flex;flex-direction:column;gap:1.3cqh">
+      <div style="display:flex;align-items:flex-end;gap:1cqw;padding-left:1.6cqw;margin-bottom:-0.6cqh">
+        <div style="font-family:'Press Start 2P', monospace;font-weight:500;font-size:1.25cqw;letter-spacing:0.04em;color:#facb8d;text-transform:uppercase">Captain Eva</div>
+        <div style="padding-bottom:0.5cqh;font-style:italic;font-size:1.4cqw;color:rgba(234,233,233,0.42)">who thought of the horse in the first place</div>
       </div>
-      <div id="dialogue-box">
-        <p id="dialogue-text">{{ session.chat_history[0]['content'] }}</p>
-        <div id="typing-indicator" class="hidden">...</div>
+      <div id="eva-box" style="cursor:pointer;background:rgba(19,18,17,0.9);border:3px solid #7d5411;border-radius:0;padding:2.8cqh 2.6cqw;min-height:19cqh;display:flex;flex-direction:column;justify-content:center;gap:1cqh;box-shadow:0 0 0 4px #131211, 0 0 0 5px rgba(194,141,65,0.35);position:relative">
+        <div id="eva-action" style="font-style:italic;font-size:1.45cqw;color:#e1ad66;line-height:1.4"></div>
+        <div style="font-size:2cqw;line-height:1.45;color:#eae7e7;text-wrap:pretty"><span id="eva-spoken"></span><span id="eva-caret" style="animation:blink 1s step-end infinite;color:#b68235"></span></div>
+        <div style="position:absolute;right:1.6cqw;bottom:1.2cqh;display:flex;align-items:center;gap:0.6cqw;font-family:'Press Start 2P', monospace;font-size:0.9cqw;letter-spacing:0.15em;text-transform:uppercase;color:rgba(234,233,233,0.45)">
+          <span id="eva-cue">Continue</span><span style="animation:nudge 1.4s ease-in-out infinite;color:#b68235">▾</span>
+        </div>
       </div>
-    </div>
-
-    <div id="input-container">
-      <input type="text" id="player-input" placeholder="Type your response..." autocomplete="off" />
-      <button id="send-btn">Send</button>
-    </div>
-
-    <div id="game-over-screen" class="hidden">
-      <h1 id="game-over-title"></h1>
-      <p id="game-over-text"></p>
-      <button id="restart-btn">Try Again</button>
     </div>
   </div>
 
-  <!-- Pass initial game state from Flask to JavaScript -->
-<script>
-  const initialGameState = JSON.parse(`{{ {
-    "day": session.get("day", 1),
-    "guard_level": session.get("guard_level", 1),
-    "game_state": session.get("game_state", "playing"),
-    "initial_dialogue": session.get("chat_history", [{}])[0]
-  } | tojson | safe }}`);
-</script>
+  <!-- ================= ROLL (cinematic transition) ================= -->
+  <div id="screen-roll" class="is-hidden" style="position:absolute;inset:0;background:#000;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2.6cqh;padding:0 14cqw;text-align:center">
+    <div id="roll-lines" style="display:flex;flex-direction:column;align-items:center;gap:2.6cqh"></div>
+    <div style="position:absolute;bottom:4cqh;font-family:'Press Start 2P', monospace;font-size:0.75cqw;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.32)">Click to continue</div>
+  </div>
 
+  <!-- ================= GATE (the game) ================= -->
+  <div id="screen-gate" class="is-hidden" style="position:absolute;inset:0">
+    <div style="position:absolute;inset:0"><img src="/static/images/gate-bg.jpg" alt="" style="width:100%;height:100%;object-fit:cover"></div>
+    <div style="position:absolute;inset:0;pointer-events:none;background:radial-gradient(120% 92% at 50% 34%, rgba(19,18,17,0) 28%, rgba(19,18,17,0.6) 76%, rgba(19,18,17,0.94) 100%)"></div>
+    <div style="position:absolute;inset:0;pointer-events:none;background:linear-gradient(to bottom, rgba(19,18,17,0.62) 0%, rgba(19,18,17,0.05) 20%, rgba(19,18,17,0.05) 40%, rgba(19,18,17,0.86) 76%, rgba(19,18,17,0.97) 100%)"></div>
 
-  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <div style="position:absolute;left:50%;bottom:-9cqh;transform:translateX(-50%);width:36cqw;height:97cqh;filter:drop-shadow(0 2cqh 3.4cqh rgba(0,0,0,0.7))">
+      <img id="gate-portrait" src="/static/images/barnaby.png" alt="Guard portrait" style="width:100%;height:100%;object-fit:contain">
+    </div>
+
+    <!-- day badge -->
+    <div style="position:absolute;top:3.6cqh;left:3cqw;display:flex;align-items:baseline;gap:0.9cqw;border-left:5px solid #b68235;padding-left:1cqw">
+      <span id="day-label" style="font-family:'Press Start 2P', monospace;font-weight:300;font-size:3cqw;line-height:1;color:#facb8d;font-feature-settings:'tnum'">1</span>
+      <span style="display:flex;flex-direction:column;gap:0.2cqh">
+        <span style="font-family:'Press Start 2P', monospace;font-size:0.85cqw;letter-spacing:0.16em;text-transform:uppercase;color:#e1ad66">Day</span>
+        <span style="font-style:italic;font-size:1.35cqw;color:rgba(234,233,233,0.45)">of three</span>
+      </span>
+    </div>
+
+    <!-- gate + conviction -->
+    <div style="position:absolute;top:4cqh;right:3cqw;width:22cqw;display:flex;flex-direction:column;gap:1cqh;align-items:flex-end">
+      <div style="font-family:'Press Start 2P', monospace;font-size:0.85cqw;letter-spacing:0.14em;text-transform:uppercase;color:rgba(234,233,233,0.6)">Gate <span id="gate-label">I</span> of III</div>
+      <div style="width:100%;display:flex;flex-direction:column;gap:0.7cqh">
+        <div style="display:flex;justify-content:space-between;align-items:baseline">
+          <span style="font-family:'Press Start 2P', monospace;font-size:0.75cqw;letter-spacing:0.14em;text-transform:uppercase;color:rgba(234,233,233,0.45)">Conviction</span>
+          <span id="conviction-num" style="font-family:'Press Start 2P', monospace;font-size:1.05cqw;color:#facb8d;font-feature-settings:'tnum'">50</span>
+        </div>
+        <div style="height:1.4cqh;border:3px solid #7d5411;border-radius:0;position:relative;overflow:hidden;background:rgba(19,18,17,0.6)">
+          <div id="conviction-fill" style="position:absolute;inset:0;width:50%;background:repeating-linear-gradient(to right, #c28d41 0 0.8cqw, transparent 0.8cqw 1cqw);transition:width 0.35s steps(8,end)"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- dialogue + input -->
+    <div style="position:absolute;left:8cqw;right:8cqw;bottom:3.4cqh;display:flex;flex-direction:column;gap:1.3cqh">
+      <div style="display:flex;align-items:flex-end;gap:1cqw;padding-left:1.6cqw;margin-bottom:-0.6cqh">
+        <div id="speaker-name" style="font-family:'Press Start 2P', monospace;font-weight:500;font-size:1.25cqw;letter-spacing:0.04em;color:#facb8d;text-transform:uppercase">Guard Barnaby</div>
+        <div id="speaker-title" style="padding-bottom:0.5cqh;font-style:italic;font-size:1.4cqw;color:rgba(234,233,233,0.42)">of the outer gate</div>
+      </div>
+
+      <div style="background:rgba(19,18,17,0.9);border:3px solid #7d5411;border-radius:0;padding:2.8cqh 2.6cqw;min-height:17cqh;display:flex;flex-direction:column;justify-content:center;gap:1cqh;box-shadow:0 0 0 4px #131211, 0 0 0 5px rgba(194,141,65,0.35)">
+        <div id="stage-direction" style="font-style:italic;font-size:1.45cqw;color:#e1ad66;line-height:1.4"></div>
+        <div style="font-size:2cqw;line-height:1.45;color:#eae7e7;text-wrap:pretty"><span id="spoken-text"></span><span id="caret" style="animation:blink 1s step-end infinite;color:#b68235"></span></div>
+      </div>
+
+      <!-- input row -->
+      <div id="input-row" style="display:flex;gap:0.8cqw;align-items:stretch">
+        <input id="player-input" type="text" autocomplete="off" placeholder="Say something to the guard…" style="flex:1;background:rgba(19,18,17,0.8);border:3px solid rgba(194,141,65,0.4);border-radius:0;color:#eae7e7;font-family:'VT323', monospace;font-size:1.6cqw;padding:1.4cqh 1.4cqw;outline:none">
+        <button id="send-btn" class="btn" style="background:transparent;border:3px solid #b68235;border-radius:0;color:#facb8d;font-family:'Press Start 2P', monospace;font-weight:600;font-size:0.85cqw;letter-spacing:0.12em;text-transform:uppercase;padding:0 2.4cqw;cursor:pointer">Speak</button>
+        <button id="ledger-btn" class="btn-ghost" style="background:transparent;border:3px solid rgba(234,233,233,0.22);border-radius:0;color:rgba(234,233,233,0.6);font-family:'Press Start 2P', monospace;font-size:0.85cqw;letter-spacing:0.12em;text-transform:uppercase;padding:0 1.6cqw;cursor:pointer;transition:0.2s">Ledger</button>
+      </div>
+
+      <!-- locked row (after outcome) -->
+      <div id="locked-row" class="is-hidden" style="display:flex;gap:0.8cqw;align-items:stretch">
+        <div style="flex:1;background:rgba(19,18,17,0.55);border:3px solid rgba(234,233,233,0.12);color:rgba(234,233,233,0.28);font-family:'VT323', monospace;font-size:1.6cqw;padding:1.4cqh 1.4cqw;font-style:italic">The conversation is over.</div>
+        <button id="outcome-btn" class="btn" style="background:transparent;border:3px solid #b68235;border-radius:0;color:#facb8d;font-family:'Press Start 2P', monospace;font-weight:600;font-size:0.85cqw;letter-spacing:0.12em;text-transform:uppercase;padding:0 3cqw;cursor:pointer">Head back to camp</button>
+      </div>
+    </div>
+
+    <!-- ledger overlay -->
+    <div id="ledger" class="is-hidden" style="position:absolute;inset:0;background:rgba(19,18,17,0.72);display:flex;justify-content:flex-end">
+      <div style="width:38cqw;height:100%;background:#161514;border-left:4px solid #7d5411;display:flex;flex-direction:column">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;padding:4cqh 2.4cqw 2cqh;border-bottom:1px solid rgba(234,233,233,0.14)">
+          <div style="font-family:'Press Start 2P', monospace;font-size:1.1cqw;color:#facb8d">The Ledger</div>
+          <button id="ledger-close" class="btn-ghost" style="background:transparent;border:3px solid rgba(234,233,233,0.22);border-radius:0;color:rgba(234,233,233,0.6);font-family:'Press Start 2P', monospace;font-size:0.75cqw;letter-spacing:0.12em;text-transform:uppercase;padding:0.9cqh 1.1cqw;cursor:pointer;transition:0.2s">Close</button>
+        </div>
+        <div id="ledger-list" style="flex:1;overflow-y:auto;padding:1cqh 2.4cqw 3cqh"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= END (win / lose) ================= -->
+  <div id="screen-end" class="is-hidden" style="position:absolute;inset:0;background:#131211;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2.6cqh;text-align:center">
+    <div id="end-kicker" style="font-family:'Press Start 2P', monospace;font-size:0.8cqw;letter-spacing:0.2em;text-transform:uppercase;color:#e1ad66">Turned away</div>
+    <h2 id="end-title" style="font-family:'Press Start 2P', monospace;font-weight:300;font-size:3cqw;margin:0;color:#f8f4f4">The gate stays shut</h2>
+    <div style="width:22cqw;height:4px;background:#b68235"></div>
+    <p id="end-body" style="max-width:42cqw;font-size:1.65cqw;line-height:1.555;text-align:left;color:rgba(234,233,233,0.75)"></p>
+    <div style="display:flex;gap:3cqw;margin-top:1.6cqh">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:0.5cqh">
+        <span id="stat-days" style="font-family:'Press Start 2P', monospace;font-weight:300;font-size:2.2cqw;color:#facb8d;font-feature-settings:'tnum'">1</span>
+        <span style="font-family:'Press Start 2P', monospace;font-size:0.72cqw;letter-spacing:0.14em;text-transform:uppercase;color:rgba(234,233,233,0.45)">Days spent</span>
+      </div>
+      <div style="width:1px;background:rgba(234,233,233,0.16)"></div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:0.5cqh">
+        <span id="stat-gates" style="font-family:'Press Start 2P', monospace;font-weight:300;font-size:2.2cqw;color:#facb8d;font-feature-settings:'tnum'">0</span>
+        <span style="font-family:'Press Start 2P', monospace;font-size:0.72cqw;letter-spacing:0.14em;text-transform:uppercase;color:rgba(234,233,233,0.45)">Gates passed</span>
+      </div>
+    </div>
+    <button id="restart-btn" class="btn" style="margin-top:2cqh;background:transparent;border:3px solid #b68235;border-radius:0;color:#facb8d;font-family:'Press Start 2P', monospace;font-weight:600;font-size:0.9cqw;letter-spacing:0.14em;text-transform:uppercase;padding:1.6cqh 3cqw;cursor:pointer">Begin again</button>
+  </div>
+
+</div>
+<script src="/static/js/script.js"></script>
 </body>
 </html>

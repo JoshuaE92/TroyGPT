@@ -1,15 +1,51 @@
 from fastapi import FastAPI, Depends
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 import re
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.util import get_remote_address
+from fastapi import Request
+
 
 from app.database import get_db
 from app.game_logic import*
 from app.llm_client import get_ai_response
+import time
 
 from pydantic import BaseModel
 
+#goal is to get visitors ip adress as a string
+#we want to limit each ip adress
+#problen is render uses proxy so every proxy ip looks the same
+#need to get the real one
+def get_real_ip(request: Request)-> str:
+    forwarded=request.headers.get("X-Forwarded-For")
+
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    else:
+        return get_remote_address(request)
+        
+
+
+
+
+
+
 
 app=FastAPI()
+limiter=Limiter(key_func=get_real_ip)
+app.state.limiter=limiter
+app.add_exception_handler(RateLimitExceeded,_rate_limit_exceeded_handler)
+
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+@app.get("/")
+def home():
+    return FileResponse("templates/index.html")
 
 class Chat(BaseModel):
     session_id: int
@@ -19,7 +55,8 @@ class Chat(BaseModel):
 
 
 @app.post("/session")
-def new_session(db:Session=Depends(get_db)):
+@limiter.limit("10/minute")
+def new_session(request:Request,db:Session=Depends(get_db)):
     game=create_game_session(db)
     return{"session_id":game.id}
 
@@ -76,8 +113,9 @@ def chat(request: Chat, db: Session=Depends(get_db)):
 
         if current_game.conviction>=100:
             closing=build_closing_prompt(guard_level=current_game.guard_level, outcome="CONVINCED")
-            closing_message=get_ai_response(format_history,system_prompt=closing)
+            closing_message=get_ai_response(format_history,system_prompt=closing) or "*the guard studies you a long moment, then steps aside* ...Very well. You've said enough to satisfy me. The gate is open — pass through, and be on your way."
             ai_message=save_message(db,session_id=current_game.id, role="assistant", content=closing_message, day=current_game.day, guard_level=current_game.guard_level)
+         
 
             
 
@@ -93,7 +131,9 @@ def chat(request: Chat, db: Session=Depends(get_db)):
                 current_game.day=1
                 status="CONVINCED"
             db.commit()
+            
             return {"reply":ai_message.content,"conviction":current_game.conviction,"status":status,"day":current_game.day,"guard_level":current_game.guard_level}
+            
 
 
             
@@ -102,7 +142,8 @@ def chat(request: Chat, db: Session=Depends(get_db)):
 
         if current_game.conviction<=0:
             closing=build_closing_prompt(guard_level=current_game.guard_level, outcome="DENIED")
-            closing_message=get_ai_response(format_history,system_prompt=closing)
+            closing_message=get_ai_response(format_history,system_prompt=closing) or "*the guard shakes their head and holds their ground* No. Not today. Whatever that thing is, it stays outside my gate. Turn back."
+
             ai_message=save_message(db,session_id=current_game.id, role="assistant", content=closing_message, day=current_game.day, guard_level=current_game.guard_level)
             
 
@@ -118,13 +159,27 @@ def chat(request: Chat, db: Session=Depends(get_db)):
             eva_prompt=build_eva_response(key_points=key_points,history=format_history)
             recap = get_ai_response([{"role": "user", "content": "How did I do? Give me my debrief."}],
                         system_prompt=eva_prompt)
+            if not recap:
+                for _ in range(2):
+                    recap = get_ai_response([{"role": "user", "content": "How did I do? Give me my debrief."}],
+                                            system_prompt=eva_prompt)
+                    if recap:
+                        break
+
+                    time.sleep(1)
+            recap=recap or "Come find me after your next attempt — I couldn't gather my notes in time."
+
 
             return {"reply":ai_message.content,"conviction":current_game.conviction,"status":status,"recap":recap,"day":current_game.day,"guard_level":current_game.guard_level}
 
     
-    db.commit()   
-    ai_message=save_message(db,session_id=current_game.id, role="assistant", content=parts[0].rstrip(), day=current_game.day, guard_level=current_game.guard_level)
-    return {"reply":ai_message.content,"conviction":current_game.conviction,"status":status,"day":current_game.day,"guard_level":current_game.guard_level}
+        db.commit()   
+        ai_message=save_message(db,session_id=current_game.id, role="assistant", content=parts[0].rstrip(), day=current_game.day, guard_level=current_game.guard_level)
+        return {"reply":ai_message.content,"conviction":current_game.conviction,"status":status,"day":current_game.day,"guard_level":current_game.guard_level}
+    else:
+        return{"reply":"*the guard frowns, distracted for a moment* ...Hm? Say that again — I didn't quite catch you.","conviction":current_game.conviction,"status":"PLAYING","day":current_game.day,"guard_level":current_game.guard_level}
+
+
     
 
 @app.get("/session_id/{session_id}")
